@@ -1,0 +1,64 @@
+version: '3.9'
+
+services:
+  consumer:
+    build: ./consumer/
+    hostname: ${CON_HOST}
+    environment:
+      - API_HOST=${API_HOST}
+      - API_PORT=${API_PORT}
+      - CON_PORT=${CON_PORT}
+    volumes:
+      - ./consumer/code:/app
+    command: python consumer.py   
+    ports:
+      - "${CON_PORT}:${CON_PORT}"
+  api:
+    build: ./api/
+    hostname: ${API_HOST}
+    environment:
+      - API_PORT=${API_PORT}
+    command: python api.py
+    volumes:
+      - ./api/code:/app
+    ports:
+      - "${API_PORT}:${API_PORT}" # change 5000 to 6000 because something wrong with the 5000 path on my laptop
+  # app:
+  #   image: my-app:latest
+  #   build: .
+  #   environment:
+  #     - DISPLAY=${DISPLAY}
+  #   volumes:
+  #     - /tmp/.X11-unix:/tmp/.X11-unix
+  #   network_mode: host
+  dba:
+    image: dpage/pgadmin4
+    hostname: dba
+    # volumes:
+    #   - pgadmin:/var/lib/pgadmin
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=a@b.com
+      - PGADMIN_DEFAULT_PASSWORD=pass
+      - PGADMIN_DEFAULT_PASSWORD_FILE=${PGADMIN_DEFAULT_PASSWORD_FILE}
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASS}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - ${DBA_PORT}
+  db:
+    image: postgres:12.12
+    hostname: ${DB_NAME}
+    volumes:
+      -  ./db/init:/docker-entrypoint-initdb.d
+    environment:
+      - POSTGRES_USER=${PG_USER}
+      - POSTGRES_PASSWORD=${PG_PASS}
+      - POSTGRES_DB=${DB_NAME}
+      - PGADMIN_DEFAULT_EMAIL=${PGA_ADMIN_NAME}
+      - PGADMIN_DEFAULT_PASSWORD=${PGA_ADMIN_PASS}
+      - PGADMIN_DEFAULT_PASSWORD_FILE=${PGADMIN_DEFAULT_PASSWORD_FILE}
+    ports:
+      - "${PG_PORT}:${PG_PORT}" 
+
+
+

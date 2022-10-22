@@ -1,0 +1,8 @@
+FROM python
+RUN pip install flask
+ENV API_HOST=${API_HOST}
+ENV API_PORT=${API_PORT}
+ENV CON_PORT=${CON_PORT}
+VOLUME [ "/app" ]
+WORKDIR /app
+EXPOSE ${CON_PORT}
